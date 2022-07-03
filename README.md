@@ -1,0 +1,1 @@
+Humble discrete event simulation tool developed for a uni subject. SSF stands for Simple Simulation Framework.
