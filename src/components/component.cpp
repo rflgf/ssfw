@@ -3,4 +3,4 @@
 namespace ssfw
 {
 
-}
+} // namespace ssfw

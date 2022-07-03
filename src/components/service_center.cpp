@@ -1,9 +1,8 @@
 #include "service_center.h"
 
-namespace ssfw {
+namespace ssfw
+{
 
-	void service_center::update_statistics(event& e)
-	{
-	}
-	
-}
+void service_center::update_statistics(event &e) {}
+
+} // namespace ssfw

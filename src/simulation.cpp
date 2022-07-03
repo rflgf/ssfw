@@ -1,11 +1,12 @@
 #include "simulation.h"
 
-namespace ssfw {
+namespace ssfw
+{
 
-	std::multimap<time_unit, event&> events;
-	
-	void run(model &m) {}
+std::multimap<time_unit, event &> events;
 
-	void evaluate_event(event &e, time_unit elapsed_time) {}
+void run(model &m) {}
 
-}
+void evaluate_event(event &e, time_unit elapsed_time) {}
+
+} // namespace ssfw

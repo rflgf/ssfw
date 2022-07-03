@@ -2,22 +2,27 @@
 
 #include "core.h"
 
-namespace ssfw {
+namespace ssfw
+{
 
-		class component
+class component
+{
+public:
+	component(std::string name, uint32_t id, component *outlet)
+	    : name(name), id(id), outlet(outlet)
 	{
-	public:
-		
-		component(std::string name, uint32_t id, component* outlet)
-			: name(name), id(id), outlet(outlet) {}
+	}
 
-		component(const char* name, uint32_t id, component* outlet)
-			: name(name), id(id), outlet(outlet) {}
-		
-		std::string name;
-		uint8_t id;
-		component* outlet;
+	component(const char *name, uint32_t id, component *outlet)
+	    : name(name), id(id), outlet(outlet)
+	{
+	}
 
-		virtual void update_statistics(event& e) = 0;
-	};
-}
+	std::string name;
+	uint8_t id;
+	component *outlet;
+
+	virtual void update_statistics(event &e) = 0;
+};
+
+} // namespace ssfw

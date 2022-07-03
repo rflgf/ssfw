@@ -1,8 +1,8 @@
 #include "router.h"
 
-namespace ssfw {
+namespace ssfw
+{
 
-	void router::update_statistics(event& e)
-	{
-	}	
-}
+void router::update_statistics(event &e) {}
+
+} // namespace ssfw

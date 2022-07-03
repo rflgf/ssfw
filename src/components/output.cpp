@@ -1,8 +1,8 @@
 #include "output.h"
 
-namespace ssfw {
+namespace ssfw
+{
 
-	void output::update_statistics(event& e)
-	{
-	}
-}
+void output::update_statistics(event &e) {}
+
+} // namespace ssfw
