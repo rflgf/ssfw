@@ -12,7 +12,18 @@ class component;
 
 using entity = size_t;
 using time_unit = size_t;
-using event = std::tuple<entity, component &, size_t,
-                         size_t>; // entity, component, start, duration
+
+struct event
+{
+	entity ent;
+	component *comp;
+	time_unit start;
+	time_unit duration;
+
+	event(entity ent, component *comp, time_unit start, time_unit duration)
+	    : ent(ent), comp(comp), start(start), duration(duration)
+	{
+	}
+};
 
 } // namespace ssfw

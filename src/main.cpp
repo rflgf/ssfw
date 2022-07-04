@@ -4,7 +4,7 @@
 int main()
 {
 	// READ FILE INTO MODEL
-	ssfw::model model;
+	ssfw::model model("Exemplo", 20);
 	model.load_from("example.json");
 
 	// VALIDATE MODEL

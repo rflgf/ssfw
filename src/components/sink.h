@@ -6,7 +6,7 @@
 namespace ssfw
 {
 
-class output : public component
+class sink : public component
 {
 public:
 	struct statistics
@@ -17,9 +17,9 @@ public:
 
 	statistics statistics;
 
-	output(std::string name, uint32_t id) : component(name, id, nullptr) {}
+	sink(const std::string &name, uint8_t id) : component(name, id, nullptr) {}
 
-	output(const char *name, uint32_t id) : component(name, id, nullptr) {}
+	sink(const char *name, uint8_t id) : component(name, id, nullptr) {}
 
 	virtual void update_statistics(event &e) override;
 };

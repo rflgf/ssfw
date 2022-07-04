@@ -1,0 +1,41 @@
+{
+	"name": "Exemplo",
+	"sim_time_limit": 100000,
+	"components": [
+		{
+			"id": 0,
+			"name": "Entrada A",
+			"type": "generator",
+			"lower_throughput": 1,
+			"upper_throughput": 3,
+			"outlet": 1
+		},
+		{
+			"id": 1,
+			"name": "Centro de Serviço A",
+			"type": "server",
+			"attendants": 3,
+			"lower_service_time": 4,
+			"upper_service_time": 5,
+			"outlet": 2
+		},
+		{
+			"id": 2,
+			"name": "Roteador A",
+			"type": "router",
+			"factor": 0.3,
+			"outlet_a": 3,
+			"outlet_b": 4
+		},
+		{
+			"id": 3,
+			"name": "Saída A",
+			"type": "sink"
+		},
+		{
+			"id": 4,
+			"name": "Saída B",
+			"type": "sink"
+		}
+	]
+}

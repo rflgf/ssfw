@@ -13,10 +13,10 @@ set(ssfw_src
 	"src/simulation.cpp"
 
 	"src/components/component.cpp"
-	"src/components/input.cpp"
-	"src/components/output.cpp"
+	"src/components/generator.cpp"
 	"src/components/router.cpp"
-	"src/components/service_center.cpp"
+	"src/components/server.cpp"
+	"src/components/sink.cpp"
 )
 
 add_executable(ssfw ${ssfw_src})

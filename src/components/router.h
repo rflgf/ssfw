@@ -9,8 +9,8 @@ namespace ssfw
 class router : public component
 {
 public:
-	router(std::string name, uint8_t id, component *out_a, component *out_b,
-	       float factor)
+	router(const std::string &name, uint8_t id, component *out_a,
+	       component *out_b, float factor)
 	    : component(name, id, out_a), out_b(out_b), factor(factor)
 	{
 	}
