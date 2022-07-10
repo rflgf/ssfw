@@ -17,20 +17,40 @@ public:
 		entity avg_queue_size;
 	};
 
-	statistics statistics;
+	statistics statistics {};
 	time_unit lower_service_time;
 	time_unit upper_service_time;
-	entity attendants;
+	entity server_count;
+	time_unit *servers;
 
-	server(const std::string &name, uint8_t id, component *outlet,
+	server(const std::string name, uint8_t id, component *outlet,
 	       time_unit lower_service_time, time_unit upper_service_time,
-	       entity attendants)
+	       entity servers)
 	    : component(name, id, outlet), lower_service_time(lower_service_time),
-	      upper_service_time(upper_service_time), attendants(attendants)
+	      upper_service_time(upper_service_time), server_count(servers),
+	      servers(new time_unit[servers])
 	{
+		for (entity i = 0; i < server_count; ++i)
+			this->servers[i] = 0;
 	}
 
+	server(const char *name, uint8_t id, component *outlet,
+	       time_unit lower_service_time, time_unit upper_service_time,
+	       entity servers)
+	    : component(name, id, outlet), lower_service_time(lower_service_time),
+	      upper_service_time(upper_service_time), server_count(servers),
+	      servers(new time_unit[servers])
+	{
+		for (entity i = 0; i < server_count; ++i)
+			this->servers[i] = 0;
+	}
+
+	~server() { delete[] servers; }
+
+	entity get_next_available_server() const;
+	virtual void evaluate_event(event &e) override;
 	virtual void update_statistics(event &e) override;
+	virtual time_unit sample_from_distribution() override;
 };
 
 } // namespace ssfw

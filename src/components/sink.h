@@ -17,11 +17,13 @@ public:
 
 	statistics statistics;
 
-	sink(const std::string &name, uint8_t id) : component(name, id, nullptr) {}
+	sink(const std::string name, uint8_t id) : component(name, id, nullptr) {}
 
 	sink(const char *name, uint8_t id) : component(name, id, nullptr) {}
 
+	virtual void evaluate_event(event &e) override;
 	virtual void update_statistics(event &e) override;
+	virtual time_unit sample_from_distribution() override;
 };
 
 } // namespace ssfw

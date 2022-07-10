@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(ssfw CXX)
 
-set(CMAKE_CXX_FLAGS "") 
+set(CMAKE_CXX_FLAGS "-g -O0") 
 
 set(ssfw_src
 	"src/main.cpp"

@@ -21,7 +21,7 @@ public:
 	std::list<component *> components;
 	std::list<generator *> generators;
 
-	model(const std::string &name, time_unit sim_time_limit)
+	model(const std::string name, time_unit sim_time_limit)
 	    : name(name), sim_time_limit(sim_time_limit)
 	{
 	}

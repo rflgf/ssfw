@@ -4,14 +4,14 @@
 int main()
 {
 	// READ FILE INTO MODEL
-	ssfw::model model("Exemplo", 20);
+	ssfw::model model("Exemplo", 5);
 	model.load_from("example.json");
 
 	// VALIDATE MODEL
 	model.validate();
 
 	// RUN SIMULATION
-	ssfw::run(model);
+	ssfw::simulation::run(model);
 
 	// CALCULATE OUTPUT
 	// FREE COMPONENTS AND MODEL
