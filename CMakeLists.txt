@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(ssfw CXX)
 
-set(CMAKE_CXX_FLAGS "-g -O0") 
+add_subdirectory("vendor/nlohmann_json")
 
 set(ssfw_src
 	"src/main.cpp"
@@ -20,5 +20,7 @@ set(ssfw_src
 )
 
 add_executable(ssfw ${ssfw_src})
+
+target_link_libraries(ssfw nlohmann_json)
 
 target_include_directories(ssfw PUBLIC "src")

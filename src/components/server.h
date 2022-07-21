@@ -45,12 +45,18 @@ public:
 			this->servers[i] = 0;
 	}
 
+	server() = default;
+
 	~server() { delete[] servers; }
 
 	entity get_next_available_server() const;
 	virtual void evaluate_event(event &e) override;
 	virtual void update_statistics(event &e) override;
 	virtual time_unit sample_from_distribution() override;
+
+	using json = nlohmann::json;
+	friend void to_json(json &j, const server &s);
+	friend void from_json(const json &j, server &s);
 };
 
 } // namespace ssfw

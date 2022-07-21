@@ -68,8 +68,8 @@ void run(model &m)
 
 void print_events(const std::multimap<time_unit, std::unique_ptr<event>> &m)
 {
-	std::cout << "printing events:"
-	          << "\n{\n";
+	std::cout << "printing events:\n"
+	          << "{\n";
 	for (const auto &i : m)
 		std::cout << '\t' << *i.second.get() << '\n';
 	std::cout << "}\n";

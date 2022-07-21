@@ -22,9 +22,12 @@ public:
 	{
 	}
 
-	const std::string name;
+	component() = default;
+
+	std::string name;
 	uint8_t id;
 	component *outlet;
+	uint8_t outlet_id;
 
 	virtual void evaluate_event(event &e) = 0;
 	virtual void update_statistics(event &e) = 0;

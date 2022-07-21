@@ -56,4 +56,30 @@ time_unit server::sample_from_distribution()
 	return delay;
 }
 
+using json = nlohmann::json;
+
+void to_json(json &j, const ssfw::server &s)
+{
+	j = json {{"id", s.id},
+	          {"name", s.name},
+	          {"type", "server"},
+	          {"servers", s.server_count},
+	          {"lower_service_time", s.lower_service_time},
+	          {"upper_service_time", s.upper_service_time},
+	          {"outlet", s.outlet->id}};
+}
+
+void from_json(const json &j, ssfw::server &s)
+{
+	SSFW_ASSERT(std::string(j.at("type")).compare("server"),
+	            "Attempt to read non-server JSON as a server object.");
+
+	j.at("id").get_to(s.id);
+	j.at("name").get_to(s.name);
+	j.at("servers").get_to(s.server_count);
+	j.at("lower_service_time").get_to(s.lower_service_time);
+	j.at("lower_service_time").get_to(s.lower_service_time);
+	j.at("outlet").get_to(s.outlet->id);
+}
+
 } // namespace ssfw

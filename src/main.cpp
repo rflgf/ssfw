@@ -12,6 +12,7 @@ int main()
 
 	// RUN SIMULATION
 	ssfw::simulation::run(model);
+	model.save("example2.json");
 
 	// CALCULATE OUTPUT
 	// FREE COMPONENTS AND MODEL
