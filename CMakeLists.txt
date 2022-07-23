@@ -9,6 +9,8 @@ add_subdirectory("vendor/nlohmann_json")
 
 set(ssfw_src
 	"src/main.cpp"
+
+	"src/event.cpp"
 	"src/model.cpp"
 	"src/simulation.cpp"
 

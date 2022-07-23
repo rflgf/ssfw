@@ -3,11 +3,11 @@
 #include <iostream>
 #include <string>
 
+#include "core.h"
+#include "event.h"
+
 namespace ssfw
 {
-
-struct event;
-using time_unit = size_t;
 
 class component
 {

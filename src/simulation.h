@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core.h"
+#include "event.h"
 #include "model.h"
 
 namespace ssfw
