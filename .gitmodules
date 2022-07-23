@@ -1,6 +1,25 @@
 [submodule "vendor/imgui-node-editor"]
 	path = vendor/imgui-node-editor
 	url = https://github.com/thedmd/imgui-node-editor.git
+    branch = develop
+	shallow = true
 [submodule "vendor/nlohmann_json"]
 	path = vendor/nlohmann_json
 	url = https://github.com/nlohmann/json.git
+	shallow = true
+[submodule "vendor/glad"]
+	path = vendor/glad
+	url = https://github.com/Dav1dde/glad.git
+	shallow = true
+[submodule "vendor/SDL"]
+	path = vendor/SDL
+	url = https://github.com/libsdl-org/SDL.git
+	shallow = true
+[submodule "vendor/stb"]
+	path = vendor/stb
+	url = https://github.com/nothings/stb.git
+	shallow = true
+[submodule "vendor/imgui"]
+	path = vendor/imgui
+	url = https://github.com/ocornut/imgui.git
+	shallow = true
