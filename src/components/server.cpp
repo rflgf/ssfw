@@ -58,7 +58,7 @@ time_unit server::sample_from_distribution()
 
 using json = nlohmann::json;
 
-void to_json(json &j, const ssfw::server &s)
+void to_json(json &j, const server &s)
 {
 	j = json {{"id", s.id},
 	          {"name", s.name},
@@ -69,7 +69,7 @@ void to_json(json &j, const ssfw::server &s)
 	          {"outlet", s.outlet->id}};
 }
 
-void from_json(const json &j, ssfw::server &s)
+void from_json(const json &j, server &s)
 {
 	SSFW_ASSERT(std::string(j.at("type")).compare("server"),
 	            "Attempt to read non-server JSON as a server object.");

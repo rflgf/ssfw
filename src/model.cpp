@@ -53,7 +53,7 @@ void model::update_statistics(event &e) {}
 
 using json = nlohmann::json;
 
-void to_json(json &j, const ssfw::model &m)
+void to_json(json &j, const model &m)
 {
 	j = json {{"name", m.name},
 	          {"sim_time_limit", m.sim_time_limit},
@@ -63,7 +63,7 @@ void to_json(json &j, const ssfw::model &m)
 	          {"sinks", m.sink_components}};
 }
 
-void from_json(const json &j, ssfw::model &m)
+void from_json(const json &j, model &m)
 {
 	j.at("name").get_to(m.name);
 	j.at("sim_time_limit").get_to(m.sim_time_limit);
@@ -78,7 +78,27 @@ void from_json(const json &j, ssfw::model &m)
 	// actually points to it. for now, since we're providing a model creation
 	// tool, and given the scope of this project, it's fair to assume that the
 	// input JSON file is always valid and no further validation will be made.
-	// TODO(Rafael): do the thing described above.
+
+	std::unordered_map<uint8_t, component *> components_by_id;
+
+	for (auto &c : m.generator_components)
+		components_by_id.insert({c.id, static_cast<component *>(&c)});
+	for (auto &c : m.router_components)
+		components_by_id.insert({c.id, static_cast<component *>(&c)});
+	for (auto &c : m.server_components)
+		components_by_id.insert({c.id, static_cast<component *>(&c)});
+	for (auto &c : m.sink_components)
+		components_by_id.insert({c.id, static_cast<component *>(&c)});
+
+	for (auto iter = components_by_id.begin(); iter != components_by_id.end();
+	     ++iter)
+	{
+		component *c = iter->second;
+		SSFW_ASSERT(components_by_id.find(c->outlet_id) !=
+		                components_by_id.end(),
+		            "Malformed input JSON: component missing.");
+		c->outlet = components_by_id.at(c->outlet_id);
+	}
 }
 
 } // namespace ssfw

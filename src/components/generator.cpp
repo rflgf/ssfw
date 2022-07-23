@@ -11,7 +11,7 @@ time_unit generator::sample_from_distribution() { return 0; }
 
 using json = nlohmann::json;
 
-void to_json(json &j, const ssfw::generator &g)
+void to_json(json &j, const generator &g)
 {
 	j = json {{"id", g.id},
 	          {"name", g.name},
@@ -21,7 +21,7 @@ void to_json(json &j, const ssfw::generator &g)
 	          {"outlet", g.outlet->id}};
 }
 
-void from_json(const json &j, ssfw::generator &g)
+void from_json(const json &j, generator &g)
 {
 	SSFW_ASSERT(std::string(j.at("type")).compare("generator"),
 	            "Attempt to read non-generator JSON into a generator object.");

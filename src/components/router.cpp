@@ -29,7 +29,7 @@ time_unit router::sample_from_distribution() { return 0; }
 
 using json = nlohmann::json;
 
-void to_json(json &j, const ssfw::router &r)
+void to_json(json &j, const router &r)
 {
 	j = json {{"id", r.id},
 	          {"name", r.name},
@@ -39,7 +39,7 @@ void to_json(json &j, const ssfw::router &r)
 	          {"outlet_b", r.outlet_b->id}};
 }
 
-void from_json(const json &j, ssfw::router &r)
+void from_json(const json &j, router &r)
 {
 	SSFW_ASSERT(std::string(j.at("type")).compare("router"),
 	            "Attempt to read non-router JSON as a router object.");
