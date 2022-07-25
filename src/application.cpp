@@ -1,5 +1,6 @@
 #include "application.h"
 #include "utils.h"
+#include "imgui_impl_sdl.h"
 
 namespace ssfw
 {
@@ -60,6 +61,7 @@ int application::init()
 	auto &io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+	io.WantCaptureMouse = true;
 
 	// io.ConfigFlags |= ImGuiConfigFlags_DockingEnable |
 	// ImGuiWindowFlags_MenuBar;
@@ -99,7 +101,7 @@ void application::main_loop()
 		SDL_Event e;
 		while (SDL_PollEvent(&e) != 0)
 		{
-			if (false == ImGui_ImplSDL2_ProcessEvent(&e))
+			if (!ImGui_ImplSDL2_ProcessEvent(&e))
 			{
 				switch (e.type)
 				{
@@ -134,7 +136,6 @@ void application::main_loop()
 				}
 				break;
 				default:
-
 					// ignore other events
 					break;
 				}
@@ -161,51 +162,65 @@ void application::main_loop()
 	}
 }
 
-void draw_menu_bar()
-{
-	if (ImGui::BeginMenuBar())
-	{
-		if (ImGui::BeginMenu("File"))
-		{
-			if (ImGui::MenuItem("Open..", "Ctrl+O"))
-			{ /* Do stuff */
-			}
-			if (ImGui::MenuItem("Save", "Ctrl+S"))
-			{ /* Do stuff */
-			}
-			if (ImGui::MenuItem("Close", "Ctrl+W"))
-			{
-			}
-			ImGui::EndMenu();
-		}
-		ImGui::EndMenuBar();
-	}
-}
-
 void application::on_gui()
 {
-	draw_menu_bar();
-
-	auto &io = ImGui::GetIO(); // Enable Docking
-
-	node_editor::Config config;
-	config.SettingsFile = "textgen-nodes.json";
-	node_editor_context = node_editor::CreateEditor(&config);
-
+	auto &io = ImGui::GetIO();
 	ImGui::SetNextWindowPos({0, 0});
 	ImGui::SetNextWindowSize(io.DisplaySize);
 
 	const auto flags = ImGuiWindowFlags_NoTitleBar;
 
-	// bool s = true;
-	// ImGui::ShowDemoWindow(&s);
-
-	ImGui::Begin("window", nullptr, flags);
+	// ImGui::Begin("window", nullptr, flags);
+	ImGui::Begin("window");
 
 	node_editor::SetCurrentEditor(node_editor_context);
 	node_editor::Begin("My Editor", ImVec2(0.0, 0.0f));
 
-	insert_generator_node();
+	ids = 1;
+
+	add_generator_node();
+	add_generator_node();
+
+	for (auto& linkInfo : m_Links)
+		node_editor::Link(linkInfo.self, linkInfo.in, linkInfo.out);
+
+	if (node_editor::BeginCreate())
+        {
+            node_editor::PinId inputPinId, outputPinId;
+            if (node_editor::QueryNewLink(&inputPinId, &outputPinId))
+            {
+                // QueryNewLink returns true if editor want to create new link between pins.
+                //
+                // Link can be created only for two valid pins, it is up to you to
+                // validate if connection make sense. Editor is happy to make any.
+                //
+                // Link always goes from input to output. User may choose to drag
+                // link from output pin or input pin. This determine which pin ids
+                // are valid and which are not:
+                //   * input valid, output invalid - user started to drag new ling from input pin
+                //   * input invalid, output valid - user started to drag new ling from output pin
+                //   * input valid, output valid   - user dragged link over other pin, can be validated
+
+                if (inputPinId && outputPinId) // both are valid, let's accept link
+                {
+                    // node_editor::AcceptNewItem() return true when user release mouse button.
+                    if (node_editor::AcceptNewItem())
+                    {
+                        // Since we accepted new link, lets add one to our list of links.
+                        m_Links.push_back({ node_editor::LinkId(ids++), inputPinId, outputPinId });
+
+                        // Draw new link.
+                        node_editor::Link(m_Links.back().self, m_Links.back().in, m_Links.back().out);
+                    }
+
+                    // You may choose to reject connection between these nodes
+                    // by calling node_editor::RejectNewItem(). This will allow editor to give
+                    // visual feedback by changing link thickness and color.
+                }
+            }
+        }
+        node_editor::EndCreate(); // Wraps up object creation action handling.
+
 
 	node_editor::End();
 	node_editor::SetCurrentEditor(nullptr);
@@ -218,21 +233,47 @@ void draw_node_icon(const char *filepath)
 	int my_image_width = 0;
 	int my_image_height = 0;
 	GLuint my_image_texture = 0;
-	float factor = 0.2;
+	double factor = 0.2;
 	bool ret = utils::load_texture_from_file(filepath, &my_image_texture,
 	                                         &my_image_width, &my_image_height);
-	IM_ASSERT(ret);
+	// IM_ASSERT(ret);
 	ImGui::Image(
 	    (void *)(intptr_t)my_image_texture,
 	    ImVec2(my_image_width * node_editor::GetCurrentZoom() * factor,
 	           my_image_height * node_editor::GetCurrentZoom() * factor));
 }
 
-void application::insert_generator_node()
+void application::add_generator_node()
 {
-	node_editor::BeginNode(ids++);
+	int lower_throughput, upper_throughput;
+	auto id = ids++;
+	node_editor::BeginNode(id);
 	draw_node_icon("assets/generator.png");
 	ImGui::Text("Generator");
+	// ImGui::InputText();
+	static char str1[128] = "";
+	static char str2[128] = "";
+	ImGui::Text("lower throughput");
+	ImGui::PushItemWidth(25);
+	ImGui::SameLine();
+	ImGui::InputText("", str1, IM_ARRAYSIZE(str1));
+	ImGui::Text("upper throughput");
+	ImGui::SameLine();
+	ImGui::InputText("", str2, IM_ARRAYSIZE(str2));
+	ImGui::PopItemWidth();
+
+	node_editor::BeginPin(ids++, node_editor::PinKind::Output);
+	ImGui::Text("out");
+	node_editor::EndPin();
+	node_editor::EndNode();
+}
+
+void application::add_router_node()
+{
+	auto id = ids++;
+	node_editor::BeginNode(id);
+	draw_node_icon("assets/router.png");
+	ImGui::Text("Router");
 	node_editor::BeginPin(ids++, node_editor::PinKind::Output);
 	ImGui::Text("out");
 	node_editor::EndPin();

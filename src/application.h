@@ -50,9 +50,14 @@ private:
 	node_editor::EditorContext *node_editor_context = nullptr;
 	window window_info;
 	uint32_t ids = 1;
+	ImVector<link> m_Links;
+	bool first_frame = true;
 
 	void on_gui();
-	void insert_generator_node();
+	void add_generator_node();
+	void add_router_node();
+	// void add_server_node();
+	// void add_sink_node();
 };
 
 } // namespace ssfw
