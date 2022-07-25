@@ -88,6 +88,7 @@ project(ssfw CXX)
 set(ssfw_src
 	"src/main.cpp"
 
+    "src/application.cpp"
 	"src/event.cpp"
 	"src/model.cpp"
 	"src/simulation.cpp"

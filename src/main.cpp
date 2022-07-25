@@ -1,3 +1,6 @@
+
+#include "application.h"
+#include "core.h"
 #include "model.h"
 #include "simulation.h"
 
@@ -12,8 +15,14 @@ int main()
 
 	// RUN SIMULATION
 	ssfw::simulation::run(model);
-	model.save("example2.json");
+	// model.save("example2.json");
+
+	ssfw::application app;
+	app.init();
+	app.main_loop();
+	app.deinit();
 
 	// CALCULATE OUTPUT
 	// FREE COMPONENTS AND MODEL
+	return 0;
 }
