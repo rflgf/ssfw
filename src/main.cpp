@@ -18,9 +18,10 @@ int main()
 	// model.save("example2.json");
 
 	ssfw::application app;
-	app.init();
-	app.main_loop();
-	app.deinit();
+	app.run();
+	// app.init();
+	// app.main_loop();
+	// app.deinit();
 
 	// CALCULATE OUTPUT
 	// FREE COMPONENTS AND MODEL

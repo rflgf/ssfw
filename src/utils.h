@@ -7,7 +7,7 @@ namespace ssfw
 namespace utils
 {
 
-bool load_texture_from_file(const char *filename, GLuint *out_texture,
+inline bool load_texture_from_file(const char *filename, GLuint *out_texture,
                             int *out_width, int *out_height)
 {
 	// Load from file

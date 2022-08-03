@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core.h"
+#include "renderer.h"
 
 #include "SDL.h"
 #undef main
@@ -21,43 +22,14 @@ namespace node_editor = ax::NodeEditor;
 
 class application
 {
-public:
-	struct window
-	{
-		SDL_Window *window;
-		int width, height;
-	};
-
-	struct link
-	{
-		node_editor::LinkId self;
-		node_editor::PinId in;
-		node_editor::PinId out;
-	};
-
-	int init();
-	void deinit();
-	void main_loop();
-	// application() = default;
-	// ~application() = default;
-	// void render_topbar();
-	// void show_statistics();
-
-	void update_viewport();
-
 private:
-	SDL_GLContext glcontext;
-	node_editor::EditorContext *node_editor_context = nullptr;
-	window window_info;
-	uint32_t ids = 1;
-	ImVector<link> m_Links;
-	bool first_frame = true;
+	bool running = true;
+	renderer renderer;
 
-	void on_gui();
-	void add_generator_node();
-	void add_router_node();
-	// void add_server_node();
-	// void add_sink_node();
+public:
+	void run();
+	void main_loop();
+	void handle_events();
 };
 
 } // namespace ssfw

@@ -58,10 +58,14 @@ add_library(imgui-node-editor STATIC
     "${imgui-node-editor_dir}/imgui_node_editor.cpp"
     "${imgui-node-editor_dir}/imgui_node_editor.h"
     "${imgui-node-editor_dir}/misc/imgui_node_editor.natvis"
+    # "${imgui-node-editor_dir}/examples/blueprints-example/utilities/builders.cpp"
+    # "${imgui-node-editor_dir}/examples/blueprints-example/utilities/drawing.cpp"
+    # "${imgui-node-editor_dir}/examples/blueprints-example/utilities/widgets.cpp"
 )
 target_include_directories(imgui-node-editor
     PUBLIC
         "${imgui-node-editor_dir}"
+        # "${imgui-node-editor_dir}/examples/blueprints-example"
 )
 target_link_libraries(imgui-node-editor
     PUBLIC
@@ -91,6 +95,7 @@ set(ssfw_src
     "src/application.cpp"
 	"src/event.cpp"
 	"src/model.cpp"
+    "src/renderer.cpp"
 	"src/simulation.cpp"
 
 	"src/components/component.cpp"
