@@ -1,17 +1,17 @@
-#include "generator.h"
+#include "Generator.h"
 
 namespace ssfw
 {
 
-void generator::evaluate_event(event &e) { e.comp->evaluate_event(e); }
+void Generator::evaluate_event(Event &e) { e.component->evaluate_event(e); }
 
-void generator::update_statistics(event &e) {}
+void Generator::update_statistics(Event &e) {}
 
-time_unit generator::sample_from_distribution() { return 0; }
+time_unit Generator::sample_from_distribution() { return 0; }
 
 using json = nlohmann::json;
 
-void to_json(json &j, const generator &g)
+void to_json(json &j, const Generator &g)
 {
 	j = json {{"id", g.id},
 	          {"name", g.name},
@@ -21,7 +21,7 @@ void to_json(json &j, const generator &g)
 	          {"outlet", g.outlet->id}};
 }
 
-void from_json(const json &j, generator &g)
+void from_json(const json &j, Generator &g)
 {
 	SSFW_ASSERT(std::string(j.at("type")).compare("generator"),
 	            "Attempt to read non-generator JSON into a generator object.");

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core.h"
+#include "model.h"
 #include "renderer.h"
 
 #include "SDL.h"
@@ -20,11 +21,12 @@ namespace ssfw
 {
 namespace node_editor = ax::NodeEditor;
 
-class application
+class Application
 {
 private:
 	bool running = true;
-	renderer renderer;
+	Renderer renderer;
+	Model model;
 
 public:
 	void run();

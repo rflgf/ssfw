@@ -6,33 +6,33 @@
 namespace ssfw
 {
 
-class generator : public component
+class Generator : public Component
 {
 public:
-	generator(const std::string name, uint8_t id, component *outlet, entity l,
+	Generator(const std::string name, uint8_t id, Component *outlet, entity l,
 	          entity u)
-	    : component(name, id, outlet), lower_throughput(l), upper_throughput(u)
+	    : Component(name, id, outlet), lower_throughput(l), upper_throughput(u)
 	{
 	}
 
-	generator(const char *name, uint8_t id, component *outlet, entity l,
+	Generator(const char *name, uint8_t id, Component *outlet, entity l,
 	          entity u)
-	    : component(name, id, outlet), lower_throughput(l), upper_throughput(u)
+	    : Component(name, id, outlet), lower_throughput(l), upper_throughput(u)
 	{
 	}
 
-	generator() = default;
+	Generator() = default;
 
 	entity lower_throughput;
 	entity upper_throughput;
 
-	virtual void evaluate_event(event &e) override;
-	virtual void update_statistics(event &e) override;
+	virtual void evaluate_event(Event &e) override;
+	virtual void update_statistics(Event &e) override;
 	virtual time_unit sample_from_distribution() override;
 
 	using json = nlohmann::json;
-	friend void to_json(json &j, const generator &g);
-	friend void from_json(const json &j, generator &g);
+	friend void to_json(json &j, const Generator &g);
+	friend void from_json(const json &j, Generator &g);
 };
 
 } // namespace ssfw

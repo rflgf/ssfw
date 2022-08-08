@@ -5,21 +5,21 @@
 namespace ssfw
 {
 
-class component;
+class Component;
 
-struct event
+struct Event
 {
 	entity ent;
-	component *comp;
+	Component *component;
 	time_unit start;
 	time_unit duration;
 
-	event(entity ent, component *comp, time_unit start, time_unit duration)
-	    : ent(ent), comp(comp), start(start), duration(duration)
+	Event(entity ent, Component *component, time_unit start, time_unit duration)
+	    : ent(ent), component(component), start(start), duration(duration)
 	{
 	}
 
-	friend std::ostream &operator<<(std::ostream &stream, const event &e);
+	friend std::ostream &operator<<(std::ostream &stream, const Event &e);
 };
 
 } // namespace ssfw

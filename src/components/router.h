@@ -6,36 +6,36 @@
 namespace ssfw
 {
 
-class router : public component
+class Router : public Component
 {
 public:
-	router(const std::string name, uint8_t id, component *outlet_a,
-	       component *outlet_b, float factor)
-	    : component(name, id, outlet_a), outlet_b(outlet_b), factor(factor)
+	Router(const std::string name, uint8_t id, Component *outlet_a,
+	       Component *outlet_b, float factor)
+	    : Component(name, id, outlet_a), outlet_b(outlet_b), factor(factor)
 	{
 	}
 
-	router(const char *name, uint8_t id, component *outlet_a,
-	       component *outlet_b, float factor)
-	    : component(name, id, outlet_a), outlet_b(outlet_b), factor(factor)
+	Router(const char *name, uint8_t id, Component *outlet_a,
+	       Component *outlet_b, float factor)
+	    : Component(name, id, outlet_a), outlet_b(outlet_b), factor(factor)
 	{
 	}
 
-	router() = default;
+	Router() = default;
 
 	float factor;
-	component *outlet_b;
+	Component *outlet_b;
 	uint8_t outlet_b_id;
 
-	virtual void evaluate_event(event &e) override;
-	virtual void update_statistics(event &e) override;
+	virtual void evaluate_event(Event &e) override;
+	virtual void update_statistics(Event &e) override;
 	virtual time_unit sample_from_distribution() override;
-	inline component *get_outlet_a() const { return outlet; }
-	inline component *get_outlet_b() const { return outlet_b; }
+	inline Component *get_outlet_a() const { return outlet; }
+	inline Component *get_outlet_b() const { return outlet_b; }
 
 	using json = nlohmann::json;
-	friend void to_json(json &j, const router &r);
-	friend void from_json(const json &j, router &r);
+	friend void to_json(json &j, const Router &r);
+	friend void from_json(const json &j, Router &r);
 };
 
 } // namespace ssfw

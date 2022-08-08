@@ -7,29 +7,29 @@ namespace ssfw
 
 namespace simulation
 {
-extern std::multimap<time_unit, std::unique_ptr<event>> events;
+extern std::multimap<time_unit, std::unique_ptr<Event>> events;
 }
 
-void router::evaluate_event(event &e)
+void Router::evaluate_event(Event &e)
 {
 	constexpr int division_magic_number_i = 10000;
 	constexpr float division_magic_number_f = 1.0f / division_magic_number_i;
 	float percentage = std::rand() * division_magic_number_f;
-	component *out = percentage >= factor ? get_outlet_a() : get_outlet_b();
+	Component *out = percentage >= factor ? get_outlet_a() : get_outlet_b();
 
 	simulation::events.emplace(
 	    std::piecewise_construct, std::forward_as_tuple(e.start),
-	    std::forward_as_tuple(std::make_unique<event>(
+	    std::forward_as_tuple(std::make_unique<Event>(
 	        e.ent, out, e.start, sample_from_distribution())));
 }
 
-void router::update_statistics(event &e) {}
+void Router::update_statistics(Event &e) {}
 
-time_unit router::sample_from_distribution() { return 0; }
+time_unit Router::sample_from_distribution() { return 0; }
 
 using json = nlohmann::json;
 
-void to_json(json &j, const router &r)
+void to_json(json &j, const Router &r)
 {
 	j = json {{"id", r.id},
 	          {"name", r.name},
@@ -39,7 +39,7 @@ void to_json(json &j, const router &r)
 	          {"outlet_b", r.outlet_b->id}};
 }
 
-void from_json(const json &j, router &r)
+void from_json(const json &j, Router &r)
 {
 	SSFW_ASSERT(std::string(j.at("type")).compare("router"),
 	            "Attempt to read non-router JSON as a router object.");

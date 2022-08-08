@@ -1,6 +1,9 @@
 #pragma once
 
+extern "C"
+{
 #include "stb_image.h"
+}
 
 namespace ssfw
 {
@@ -8,7 +11,7 @@ namespace utils
 {
 
 inline bool load_texture_from_file(const char *filename, GLuint *out_texture,
-                            int *out_width, int *out_height)
+                                   int *out_width, int *out_height)
 {
 	// Load from file
 	int image_width = 0;

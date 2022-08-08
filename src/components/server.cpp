@@ -6,12 +6,12 @@ namespace ssfw
 namespace simulation
 {
 extern time_unit elapsed_time;
-extern std::multimap<time_unit, std::unique_ptr<event>> events;
+extern std::multimap<time_unit, std::unique_ptr<Event>> events;
 } // namespace simulation
 
-void server::update_statistics(event &e) {}
+void Server::update_statistics(Event &e) {}
 
-void server::evaluate_event(event &e)
+void Server::evaluate_event(Event &e)
 {
 	time_unit delay = sample_from_distribution();
 	if (delay > SIZE_MAX - simulation::elapsed_time) // overflow check.
@@ -23,7 +23,7 @@ void server::evaluate_event(event &e)
 	if (!server_count)
 		simulation::events.emplace(
 		    std::piecewise_construct, std::forward_as_tuple(delay),
-		    std::forward_as_tuple(std::make_unique<event>(
+		    std::forward_as_tuple(std::make_unique<Event>(
 		        e.ent, outlet, simulation::elapsed_time, delay)));
 
 	// case finite servers (single queue, i.e., there is a queue-wait delay and
@@ -33,14 +33,14 @@ void server::evaluate_event(event &e)
 		entity available_server = get_next_available_server();
 		simulation::events.emplace(
 		    std::piecewise_construct, std::forward_as_tuple(delay),
-		    std::forward_as_tuple(std::make_unique<event>(
+		    std::forward_as_tuple(std::make_unique<Event>(
 		        e.ent, outlet, simulation::elapsed_time, delay)));
 		// update_statistics();
 		servers[available_server] += delay;
 	}
 }
 
-entity server::get_next_available_server() const
+entity Server::get_next_available_server() const
 {
 	entity s = 0;
 	for (entity i = 0; i < server_count; ++i)
@@ -49,7 +49,7 @@ entity server::get_next_available_server() const
 	return s;
 }
 
-time_unit server::sample_from_distribution()
+time_unit Server::sample_from_distribution()
 {
 	time_unit diff_time = upper_service_time - lower_service_time;
 	time_unit delay = std::rand() % lower_service_time + diff_time;
@@ -58,7 +58,7 @@ time_unit server::sample_from_distribution()
 
 using json = nlohmann::json;
 
-void to_json(json &j, const server &s)
+void to_json(json &j, const Server &s)
 {
 	j = json {{"id", s.id},
 	          {"name", s.name},
@@ -69,7 +69,7 @@ void to_json(json &j, const server &s)
 	          {"outlet", s.outlet->id}};
 }
 
-void from_json(const json &j, server &s)
+void from_json(const json &j, Server &s)
 {
 	SSFW_ASSERT(std::string(j.at("type")).compare("server"),
 	            "Attempt to read non-server JSON as a server object.");

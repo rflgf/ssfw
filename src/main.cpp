@@ -7,7 +7,7 @@
 int main()
 {
 	// READ FILE INTO MODEL
-	ssfw::model model("Exemplo", 5);
+	ssfw::Model model("Exemplo", 5);
 	model.load_from("example.json");
 
 	// VALIDATE MODEL
@@ -17,11 +17,8 @@ int main()
 	ssfw::simulation::run(model);
 	// model.save("example2.json");
 
-	ssfw::application app;
+	ssfw::Application app;
 	app.run();
-	// app.init();
-	// app.main_loop();
-	// app.deinit();
 
 	// CALCULATE OUTPUT
 	// FREE COMPONENTS AND MODEL

@@ -8,7 +8,7 @@ namespace ssfw
 
 namespace node_editor = ax::NodeEditor;
 
-void application::handle_events()
+void Application::handle_events()
 {
 	SDL_Event e;
 	while (SDL_PollEvent(&e) != 0)
@@ -46,7 +46,7 @@ void application::handle_events()
 	}
 }
 
-void application::main_loop()
+void Application::main_loop()
 {
 	while (running)
 	{
@@ -59,7 +59,7 @@ void application::main_loop()
 	}
 }
 
-void application::run()
+void Application::run()
 {
 	renderer.on_init();
 	main_loop();

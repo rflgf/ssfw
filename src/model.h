@@ -10,10 +10,10 @@
 namespace ssfw
 {
 
-class model
+class Model
 {
 public:
-	struct statistics
+	struct Statistics
 	{
 		time_unit avg_entity_lifetime;
 	};
@@ -21,39 +21,41 @@ public:
 	time_unit elapsed_time = 0;
 	std::string name;
 	time_unit sim_time_limit;
-	std::vector<component *> components;
-	std::vector<generator *> generators;
+	std::vector<Component *> components;
+	std::vector<Generator *> generators;
 
-	std::vector<generator> generator_components;
-	std::vector<router> router_components;
-	std::vector<server> server_components;
-	std::vector<sink> sink_components;
+	std::vector<Generator> generator_components;
+	std::vector<Router> router_components;
+	std::vector<Server> server_components;
+	std::vector<Sink> sink_components;
 
-	model(const std::string name, time_unit sim_time_limit)
+	Model(const std::string name, time_unit sim_time_limit)
 	    : name(name), sim_time_limit(sim_time_limit)
 	{
 	}
 
-	model(const char *name, time_unit sim_time_limit);
+	Model(const char *name, time_unit sim_time_limit);
 
-	~model();
+	~Model();
 
-	model load_from(std::string_view file_path);
+	Model load_from(std::string_view file_path);
 	void validate();
 	void save(const char *file_path);
-	void update_statistics(event &e);
+	void update_statistics(Event &e);
 
-	inline std::vector<generator *> get_generators() const
+	inline std::vector<Generator *> get_generators() const
 	{
 		return generators;
 	};
 
+	friend class Application;
+
 	using json = nlohmann::json;
-	friend void to_json(json &j, const model &m);
-	friend void from_json(const json &j, model &m);
+	friend void to_json(json &j, const Model &m);
+	friend void from_json(const json &j, Model &m);
 
 private:
-	model() {}
+	Model() {}
 };
 
 } // namespace ssfw

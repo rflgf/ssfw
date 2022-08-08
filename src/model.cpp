@@ -11,15 +11,15 @@
 namespace ssfw
 {
 
-model::model(const char *name, time_unit sim_time_limit)
+Model::Model(const char *name, time_unit sim_time_limit)
     : name(name), sim_time_limit(sim_time_limit)
 {
 	// hardcoding componentes por hora.
-	sink *s1 = new sink("Saída A", 3);
-	sink *s2 = new sink("Saída B", 4);
-	router *r = new router("Roteador A", 2, s1, s2, 0.3f);
-	server *s = new server("Centro de Serviço A", 1, r, 2, 5, 2);
-	generator *g = new generator("Entrada A", 0, s, 1, 3);
+	Sink *s1 = new Sink("Saída A", 3);
+	Sink *s2 = new Sink("Saída B", 4);
+	Router *r = new Router("Roteador A", 2, s1, s2, 0.3f);
+	Server *s = new Server("Centro de Serviço A", 1, r, 2, 5, 2);
+	Generator *g = new Generator("Entrada A", 0, s, 1, 3);
 
 	components.push_back(g);
 	generators.push_back(g);
@@ -29,31 +29,31 @@ model::model(const char *name, time_unit sim_time_limit)
 	components.push_back(s2);
 }
 
-model::~model()
+Model::~Model()
 {
 	for (auto c : components)
 		delete c;
 }
 
-model model::load_from(std::string_view file_path)
+Model Model::load_from(std::string_view file_path)
 {
-	return model("Placeholder", 10000);
+	return Model("Placeholder", 10000);
 }
 
-void model::save(const char *file_path)
+void Model::save(const char *file_path)
 {
 	std::ofstream file(file_path);
 	file << json(*this).dump();
 	file.close();
 }
 
-void model::validate() {}
+void Model::validate() {}
 
-void model::update_statistics(event &e) {}
+void Model::update_statistics(Event &e) {}
 
 using json = nlohmann::json;
 
-void to_json(json &j, const model &m)
+void to_json(json &j, const Model &m)
 {
 	j = json {{"name", m.name},
 	          {"sim_time_limit", m.sim_time_limit},
@@ -63,7 +63,7 @@ void to_json(json &j, const model &m)
 	          {"sinks", m.sink_components}};
 }
 
-void from_json(const json &j, model &m)
+void from_json(const json &j, Model &m)
 {
 	j.at("name").get_to(m.name);
 	j.at("sim_time_limit").get_to(m.sim_time_limit);
@@ -79,21 +79,21 @@ void from_json(const json &j, model &m)
 	// tool, and given the scope of this project, it's fair to assume that the
 	// input JSON file is always valid and no further validation will be made.
 
-	std::unordered_map<uint8_t, component *> components_by_id;
+	std::unordered_map<uint8_t, Component *> components_by_id;
 
 	for (auto &c : m.generator_components)
-		components_by_id.insert({c.id, static_cast<component *>(&c)});
+		components_by_id.insert({c.id, static_cast<Component *>(&c)});
 	for (auto &c : m.router_components)
-		components_by_id.insert({c.id, static_cast<component *>(&c)});
+		components_by_id.insert({c.id, static_cast<Component *>(&c)});
 	for (auto &c : m.server_components)
-		components_by_id.insert({c.id, static_cast<component *>(&c)});
+		components_by_id.insert({c.id, static_cast<Component *>(&c)});
 	for (auto &c : m.sink_components)
-		components_by_id.insert({c.id, static_cast<component *>(&c)});
+		components_by_id.insert({c.id, static_cast<Component *>(&c)});
 
 	for (auto iter = components_by_id.begin(); iter != components_by_id.end();
 	     ++iter)
 	{
-		component *c = iter->second;
+		Component *c = iter->second;
 		SSFW_ASSERT(components_by_id.find(c->outlet_id) !=
 		                components_by_id.end(),
 		            "Malformed input JSON: component missing.");

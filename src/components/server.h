@@ -6,10 +6,10 @@
 namespace ssfw
 {
 
-class server : public component
+class Server : public Component
 {
 public:
-	struct statistics
+	struct Statistics
 	{
 		time_unit idleness;
 		time_unit avg_wait;
@@ -17,16 +17,16 @@ public:
 		entity avg_queue_size;
 	};
 
-	statistics statistics {};
+	Statistics statistics {};
 	time_unit lower_service_time;
 	time_unit upper_service_time;
 	entity server_count;
 	time_unit *servers;
 
-	server(const std::string name, uint8_t id, component *outlet,
+	Server(const std::string name, uint8_t id, Component *outlet,
 	       time_unit lower_service_time, time_unit upper_service_time,
 	       entity servers)
-	    : component(name, id, outlet), lower_service_time(lower_service_time),
+	    : Component(name, id, outlet), lower_service_time(lower_service_time),
 	      upper_service_time(upper_service_time), server_count(servers),
 	      servers(new time_unit[servers])
 	{
@@ -34,10 +34,10 @@ public:
 			this->servers[i] = 0;
 	}
 
-	server(const char *name, uint8_t id, component *outlet,
+	Server(const char *name, uint8_t id, Component *outlet,
 	       time_unit lower_service_time, time_unit upper_service_time,
 	       entity servers)
-	    : component(name, id, outlet), lower_service_time(lower_service_time),
+	    : Component(name, id, outlet), lower_service_time(lower_service_time),
 	      upper_service_time(upper_service_time), server_count(servers),
 	      servers(new time_unit[servers])
 	{
@@ -45,18 +45,18 @@ public:
 			this->servers[i] = 0;
 	}
 
-	server() = default;
+	Server() = default;
 
-	~server() { delete[] servers; }
+	~Server() { delete[] servers; }
 
 	entity get_next_available_server() const;
-	virtual void evaluate_event(event &e) override;
-	virtual void update_statistics(event &e) override;
+	virtual void evaluate_event(Event &e) override;
+	virtual void update_statistics(Event &e) override;
 	virtual time_unit sample_from_distribution() override;
 
 	using json = nlohmann::json;
-	friend void to_json(json &j, const server &s);
-	friend void from_json(const json &j, server &s);
+	friend void to_json(json &j, const Server &s);
+	friend void from_json(const json &j, Server &s);
 };
 
 } // namespace ssfw

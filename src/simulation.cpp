@@ -7,12 +7,12 @@ namespace ssfw
 {
 namespace simulation
 {
-void print_events(const std::multimap<time_unit, std::unique_ptr<event>> &m);
+void print_events(const std::multimap<time_unit, std::unique_ptr<Event>> &m);
 
-std::multimap<time_unit, std::unique_ptr<event>> events;
+std::multimap<time_unit, std::unique_ptr<Event>> events;
 time_unit elapsed_time = 0;
 
-void run(model &m)
+void run(Model &m)
 {
 	entity entities = 0;
 
@@ -33,7 +33,7 @@ void run(model &m)
 
 			events.emplace(std::piecewise_construct,
 			               std::forward_as_tuple(spawn_timestamp),
-			               std::forward_as_tuple(std::make_unique<event>(
+			               std::forward_as_tuple(std::make_unique<Event>(
 			                   entities++, gen->outlet, spawn_timestamp,
 			                   gen->outlet->sample_from_distribution())));
 
@@ -55,8 +55,8 @@ void run(model &m)
 		     timestamp_event_pair != events_in_current_ts.second;
 		     ++timestamp_event_pair)
 		{
-			std::unique_ptr<event> &e = timestamp_event_pair->second;
-			e->comp->evaluate_event(*e.get());
+			std::unique_ptr<Event> &e = timestamp_event_pair->second;
+			e->component->evaluate_event(*e.get());
 
 			std::cout << *e.get() << "\n";
 		}
@@ -67,7 +67,7 @@ void run(model &m)
 	}
 }
 
-void print_events(const std::multimap<time_unit, std::unique_ptr<event>> &m)
+void print_events(const std::multimap<time_unit, std::unique_ptr<Event>> &m)
 {
 	std::cout << "printing events:\n"
 	          << "{\n";

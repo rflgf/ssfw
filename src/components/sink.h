@@ -6,30 +6,30 @@
 namespace ssfw
 {
 
-class sink : public component
+class Sink : public Component
 {
 public:
-	struct statistics
+	struct Statistics
 	{
 		entity entity_count;
 		time_unit avg_entity_lifetime;
 	};
 
-	statistics statistics;
+	Statistics statistics;
 
-	sink(const std::string name, uint8_t id) : component(name, id, nullptr) {}
+	Sink(const std::string name, uint8_t id) : Component(name, id, nullptr) {}
 
-	sink(const char *name, uint8_t id) : component(name, id, nullptr) {}
+	Sink(const char *name, uint8_t id) : Component(name, id, nullptr) {}
 
-	sink() = default;
+	Sink() = default;
 
-	virtual void evaluate_event(event &e) override;
-	virtual void update_statistics(event &e) override;
+	virtual void evaluate_event(Event &e) override;
+	virtual void update_statistics(Event &e) override;
 	virtual time_unit sample_from_distribution() override;
 
 	using json = nlohmann::json;
-	friend void to_json(json &j, const sink &s);
-	friend void from_json(const json &j, sink &s);
+	friend void to_json(json &j, const Sink &s);
+	friend void from_json(const json &j, Sink &s);
 };
 
 } // namespace ssfw

@@ -4,12 +4,12 @@
 namespace ssfw
 {
 
-std::ostream &operator<<(std::ostream &stream, const event &e)
+std::ostream &operator<<(std::ostream &stream, const Event &e)
 {
-	if (!e.comp)
+	if (!e.component)
 		return stream;
 
-	stream << "event: entity " << e.ent << " at component " << e.comp->name
+	stream << "event: entity " << e.ent << " at component " << e.component->name
 	       << ", with start " << e.start << " and duration " << e.duration
 	       << ", with end " << e.start + e.duration;
 	return stream;

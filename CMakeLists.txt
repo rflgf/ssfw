@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.20.3)
 
 set(CMAKE_CXX_COMPILER "clang")
-set(CMAKE_CXX_STANDARD "20")
+set(CMAKE_CXX_STANDARD "23")
+set(CXX_STANDARD_REQUIRED ON)
 
 # dependencies #
 set(vendor_dir "${CMAKE_SOURCE_DIR}/vendor")
@@ -24,6 +25,8 @@ set(imgui_src
 	"${imgui_dir}/backends/imgui_impl_sdlrenderer.cpp"
 	"${imgui_dir}/backends/imgui_impl_opengl3.cpp"
 	"${imgui_dir}/backends/imgui_impl_opengl3_loader.h"
+
+    "${imgui_dir}/misc/cpp/imgui_stdlib.cpp"
 )
 source_group("" FILES ${imgui_src})
 add_library(imgui STATIC ${imgui_src})
@@ -31,6 +34,7 @@ target_include_directories(imgui
 	PUBLIC
 		"${imgui_dir}"
 		"${imgui_dir}/backends"
+		"${imgui_dir}/misc/cpp"
 )
 target_compile_definitions(imgui
     PUBLIC

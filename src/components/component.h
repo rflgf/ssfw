@@ -9,28 +9,28 @@
 namespace ssfw
 {
 
-class component
+class Component
 {
 public:
-	component(const std::string name, uint8_t id, component *outlet)
+	Component(const std::string name, uint8_t id, Component *outlet)
 	    : name(name), id(id), outlet(outlet)
 	{
 	}
 
-	component(const char *name, uint8_t id, component *outlet)
+	Component(const char *name, uint8_t id, Component *outlet)
 	    : name(name), id(id), outlet(outlet)
 	{
 	}
 
-	component() = default;
+	Component() = default;
 
 	std::string name;
 	uint8_t id;
-	component *outlet;
+	Component *outlet;
 	uint8_t outlet_id;
 
-	virtual void evaluate_event(event &e) = 0;
-	virtual void update_statistics(event &e) = 0;
+	virtual void evaluate_event(Event &e) = 0;
+	virtual void update_statistics(Event &e) = 0;
 	virtual time_unit sample_from_distribution() = 0;
 };
 
