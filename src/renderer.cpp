@@ -5,7 +5,8 @@
 
 #include "utils.h"
 
-#include "imgui_stdlib.h"
+#include <imgui_stdlib.h>
+#include <nfd.h>
 
 namespace ssfw
 {
@@ -77,7 +78,7 @@ int Renderer::on_init()
 	update_viewport();
 
 	node_editor::Config config;
-	config.SettingsFile = "textgen-nodes.json";
+	config.SettingsFile = "nodes.json";
 	node_editor_context = node_editor::CreateEditor(&config);
 }
 
@@ -112,44 +113,129 @@ void Renderer::update_viewport()
 	glViewport(0, 0, window_info.width, window_info.height);
 };
 
-void Renderer::on_gui()
+void Renderer::draw_main_menu()
 {
-	auto &io = ImGui::GetIO();
-	ImGui::SetNextWindowPos({0, 0});
-	ImGui::SetNextWindowSize(io.DisplaySize);
+	static bool error_modal = false;
+	auto const file_dialog = [](std::string &destination)
+	{
+		nfdchar_t *outPath = NULL;
+		nfdresult_t result = NFD_OpenDialog(NULL, NULL, &outPath);
+		if (result == NFD_OKAY)
+		{
+			destination = std::string(outPath);
+			free(outPath);
+		}
+		else if (result != NFD_CANCEL)
+			std::cout << ("Error: %s\n", NFD_GetError()) << '\n';
+	};
 
-	const auto flags = ImGuiWindowFlags_NoTitleBar;
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Open...", NULL))
+			{
+				// PS: no change tracker implemented! all changes are lost!
+				file_dialog(model_filepath);
+				load_model_from_file(model_filepath);
+			}
 
-	ImGui::Begin("window", nullptr, flags);
-	// ImGui::ShowStackToolWindow();
+			else if (ImGui::MenuItem("Save", NULL))
+			{
+				if (model_filepath.empty())
+					file_dialog(model_filepath);
+				save_model_to_file(model_filepath);
+			}
 
+			else if (ImGui::MenuItem("Save as...", NULL))
+			{
+				// PS: no change tracker implemented! all changes are lost!
+				file_dialog(model_filepath);
+				save_model_to_file(model_filepath);
+			}
+
+			ImGui::EndMenu();
+		}
+
+		if (current_view == View::MODELER)
+			if (ImGui::BeginMenu("Simulate"))
+			{
+				current_view = View::SIMULATOR;
+
+				model_view = Renderer::renderer_rep_to_model_rep(nodes);
+
+				error_modal = !model_view.validate();
+				if (error_modal)
+				{
+					current_view = View::MODELER;
+					model_validation_errors.emplace_back("some error D:");
+					ImGui::EndMenu();
+					ImGui::EndMainMenuBar();
+					goto modal_check;
+				}
+
+				ImGui::EndMenu();
+			}
+		ImGui::EndMainMenuBar();
+	}
+modal_check:
+	if (error_modal)
+		draw_centered_modal(model_validation_errors, error_modal);
+}
+
+bool Renderer::on_gui()
+{
+	draw_main_menu();
+
+	ImGuiIO &io = ImGui::GetIO();
 	node_editor::SetCurrentEditor(node_editor_context);
-	node_editor::Begin("My Editor", ImVec2(0.0, 0.0f));
+
+	const auto FLAGS = ImGuiWindowFlags_NoTitleBar;
+	const int MENU_BAR_HEIGHT = 19;
+	ImGui::SetNextWindowPos({0, MENU_BAR_HEIGHT});
+	ImGui::SetNextWindowSize(
+	    {io.DisplaySize.x, io.DisplaySize.y - MENU_BAR_HEIGHT});
+	ImGui::Begin("window", nullptr, FLAGS);
+	node_editor::Begin("My Editor", {0, 0});
 
 	on_right_click_menu();
-
 	draw_nodes();
 
-	for (auto &linkInfo : links)
-		node_editor::Link(linkInfo.self, linkInfo.in, linkInfo.out);
+	for (Link &linkInfo : links)
+		node_editor::Link(linkInfo.id, linkInfo.in, linkInfo.out);
 
 	if (node_editor::BeginCreate())
 	{
 		node_editor::PinId inputPinId, outputPinId;
 		if (node_editor::QueryNewLink(&inputPinId, &outputPinId))
 		{
+			if (pins.at(inputPinId.Get()).parent.id ==
+			    pins.at(outputPinId.Get()).parent.id)
+				node_editor::RejectNewItem();
+
+			if (pins.at(inputPinId.Get()).type ==
+			    pins.at(outputPinId.Get()).type)
+				node_editor::RejectNewItem();
+
 			if (inputPinId && outputPinId)
 			{
+				if (pins.at(inputPinId.Get()).type ==
+				    node_editor::PinKind::Output)
+				{
+					node_editor::PinId temp = inputPinId;
+					inputPinId = outputPinId;
+					outputPinId = temp;
+				}
+
 				if (node_editor::AcceptNewItem())
 				{
 					links.push_back(
 					    {node_editor::LinkId(ids++), inputPinId, outputPinId});
 
-					node_editor::Link(links.back().self, links.back().in,
+					node_editor::Link(links.back().id, links.back().in,
 					                  links.back().out);
 				}
 			}
-			// node_editor::RejectNewItem();
 		}
 	}
 	node_editor::EndCreate();
@@ -160,7 +246,7 @@ void Renderer::on_gui()
 		while (node_editor::QueryDeletedLink(&deleted_link_id))
 			if (node_editor::AcceptDeletedItem())
 				for (auto link = links.begin(); link != links.end(); link++)
-					if ((*link).self == deleted_link_id)
+					if ((*link).id == deleted_link_id)
 					{
 						links.erase(link);
 						break;
@@ -172,6 +258,8 @@ void Renderer::on_gui()
 	node_editor::SetCurrentEditor(nullptr);
 
 	ImGui::End();
+
+	return false;
 }
 
 void Renderer::draw_node_icon(const char *filepath)
@@ -190,7 +278,7 @@ void Renderer::draw_node_icon(const char *filepath)
 
 void Renderer::draw_pin(node_editor::PinKind kind, bool enabled)
 {
-	auto color =
+	uint32_t color =
 	    enabled ? IM_COL32(73, 190, 37, 200) : IM_COL32(190, 77, 37, 130);
 	ImVec2 cur_pos = ImGui::GetCursorPos();
 	float rad = 5.0f;
@@ -238,7 +326,7 @@ void Renderer::draw_generator_node(Node &g)
 		offset_cursor_by(80);
 		ImGui::PushID(g.pins.at(0).AsPointer());
 		node_editor::BeginPin(g.pins.at(0), node_editor::PinKind::Output);
-		ImGui::Text("outttttt");
+		ImGui::Text("out");
 		ImGui::SameLine(0);
 		draw_pin(node_editor::PinKind::Output, false);
 		node_editor::EndPin();
@@ -379,45 +467,76 @@ void Renderer::on_right_click_menu()
 	if (ImGui::BeginPopupContextWindow())
 	{
 		using Type = Node::Type;
+		Node n;
+		n.position = ImGui::GetMousePos();
+		n.id = ids++;
 
 		if (ImGui::MenuItem("Add generator node"))
 		{
-			auto &n = nodes.emplace_back();
-			n.position = ImGui::GetMousePos();
 			n.type = Type::GENERATOR;
-			n.id = ids++;
 			n.name = std::format("Generator {}", ++generator_count);
-			n.pins.emplace_back(ids++); // out
+
+			node_editor::PinId p1_id = n.pins.emplace_back(ids++); // out a
+			pins.emplace(std::piecewise_construct,
+			             std::forward_as_tuple(p1_id.Get()),
+			             std::forward_as_tuple(
+			                 p1_id.Get(), node_editor::PinKind::Output, n));
+
+			nodes.push_back(n);
 		}
 		else if (ImGui::MenuItem("Add router node"))
 		{
-			auto &n = nodes.emplace_back();
-			n.position = ImGui::GetMousePos();
 			n.type = Type::ROUTER;
-			n.id = ids++;
 			n.name = std::format("Router {}", ++router_count);
-			n.pins.emplace_back(ids++); // in
-			n.pins.emplace_back(ids++); // out a
-			n.pins.emplace_back(ids++); // out b
+
+			node_editor::PinId p1_id = n.pins.emplace_back(ids++); // in
+			pins.emplace(std::piecewise_construct,
+			             std::forward_as_tuple(p1_id.Get()),
+			             std::forward_as_tuple(p1_id.Get(),
+			                                   node_editor::PinKind::Input, n));
+			node_editor::PinId p2_id = n.pins.emplace_back(ids++); // out a
+			pins.emplace(std::piecewise_construct,
+			             std::forward_as_tuple(p2_id.Get()),
+			             std::forward_as_tuple(
+			                 p2_id.Get(), node_editor::PinKind::Output, n));
+			node_editor::PinId p3_id = n.pins.emplace_back(ids++); // out b
+			pins.emplace(std::piecewise_construct,
+			             std::forward_as_tuple(p3_id.Get()),
+			             std::forward_as_tuple(
+			                 p3_id.Get(), node_editor::PinKind::Output, n));
+
+			nodes.push_back(n);
 		}
 		else if (ImGui::MenuItem("Add server node"))
 		{
-			auto &n = nodes.emplace_back();
-			n.position = ImGui::GetMousePos();
 			n.type = Type::SERVER;
-			n.id = ids++;
 			n.name = std::format("Server {}", ++server_count);
-			n.pins.emplace_back(ids++); // in
-			n.pins.emplace_back(ids++); // out
+
+			node_editor::PinId p1_id = n.pins.emplace_back(ids++); // in
+			pins.emplace(std::piecewise_construct,
+			             std::forward_as_tuple(p1_id.Get()),
+			             std::forward_as_tuple(p1_id.Get(),
+			                                   node_editor::PinKind::Input, n));
+			node_editor::PinId p2_id = n.pins.emplace_back(ids++); // out a
+			pins.emplace(std::piecewise_construct,
+			             std::forward_as_tuple(p2_id.Get()),
+			             std::forward_as_tuple(
+			                 p2_id.Get(), node_editor::PinKind::Output, n));
+
+			nodes.push_back(n);
 		}
 		else if (ImGui::MenuItem("Add sink node"))
 		{
-			auto &n = nodes.emplace_back();
-			n.position = ImGui::GetMousePos();
 			n.type = Type::SINK;
-			n.id = ids++;
 			n.name = std::format("Sink {}", ++sink_count);
-			n.pins.emplace_back(ids++); // in
+
+			node_editor::PinId p1_id = n.pins.emplace_back(ids++); // in
+			pins.emplace(std::piecewise_construct,
+			             std::forward_as_tuple(p1_id.Get()),
+			             std::forward_as_tuple(p1_id.Get(),
+			                                   node_editor::PinKind::Input, n));
+
+			nodes.push_back(n);
 		}
 		ImGui::EndPopup();
 	}
@@ -425,7 +544,7 @@ void Renderer::on_right_click_menu()
 
 void Renderer::draw_nodes()
 {
-	for (auto &node : nodes)
+	for (Node &node : nodes)
 		switch (node.type)
 		{
 		case Node::Type::GENERATOR:
@@ -443,8 +562,65 @@ void Renderer::draw_nodes()
 		case Node::Type::SINK:
 			draw_sink_node(node);
 			break;
+
 		default:
 			SSFW_ASSERT(0, "Bad node type.");
 		}
 }
+
+void Renderer::load_model_from_file(std::string_view model_filepath)
+{
+	// shouldnt this be in application?
+}
+
+void Renderer::draw_centered_modal(std::vector<std::string> &messages,
+                                   bool &modal_open)
+{
+	ImGui::OpenPopup("Errors");
+	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+	if (ImGui::BeginPopupModal("Errors", NULL,
+	                           ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		for (const std::string &m : messages)
+			ImGui::Text(m.c_str());
+		ImGui::Separator();
+
+		if (ImGui::Button("OK", ImVec2(120, 0)))
+		{
+			modal_open = false;
+			ImGui::CloseCurrentPopup();
+			model_validation_errors.clear();
+		}
+		ImGui::SetItemDefaultFocus();
+		ImGui::EndPopup();
+	}
+}
+
+void Renderer::save_model_to_file(std::string_view filepath) {}
+
+Model Renderer::renderer_rep_to_model_rep(std::vector<Node> nodes)
+{
+	Model m;
+
+	// std::unordered_map<uintptr_t, Node &> nodes_map;
+	// for (Node &n : nodes)
+	// 	nodes_map.emplace(n.id.Get(), n);
+
+	// for (const Node &n : nodes)
+	// {
+	// 	switch (n.type)
+	// 	{
+	// 	case Node::Type::GENERATOR:
+	// 		entity lt = static_cast<entity>(std::atoi(n.data.a.c_str()));
+	// 		entity ut = static_cast<entity>(std::atoi(n.data.b.c_str()));
+	// 		m.generator_components.emplace_back(
+	// 		    n.name, static_cast<uint32_t>(n.id.Get()), nullptr, lt, ut);
+	// 	}
+	// }
+
+	return m;
+}
+
 } // namespace ssfw

@@ -53,7 +53,17 @@ void Application::main_loop()
 		handle_events();
 		renderer.clear();
 		renderer.new_frame();
-		renderer.on_gui();
+		bool should_simulate = renderer.on_gui();
+		if (should_simulate)
+		{
+			// and this is the point where I realize Renderer is responsible
+			// for way more tasks than it should be...
+			// FIXME(Rafael): bring all logic to the Application abstraction and
+			// have Renderer only be responsible for rendering issued UI
+			// elements.
+			// model.load_from(renderer.model_filepath);
+			// renderer.model_view = model;
+		}
 		renderer.blit();
 		renderer.on_swap_window();
 	}

@@ -32,6 +32,8 @@ public:
 	void run();
 	void main_loop();
 	void handle_events();
+
+	friend class Renderer;
 };
 
 } // namespace ssfw

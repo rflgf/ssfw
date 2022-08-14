@@ -7,9 +7,11 @@ set(CXX_STANDARD_REQUIRED ON)
 # dependencies #
 set(vendor_dir "${CMAKE_SOURCE_DIR}/vendor")
 
-add_subdirectory("vendor/nlohmann_json")
-add_subdirectory("vendor/glad")
-add_subdirectory("vendor/SDL")
+add_subdirectory("${vendor_dir}/nlohmann_json")
+add_subdirectory("${vendor_dir}/glad")
+add_subdirectory("${vendor_dir}/SDL")
+project(nativefiledialog LANGUAGES C)
+add_subdirectory("${vendor_dir}/nativefiledialog")
 
 
 #### imgui ####
@@ -111,7 +113,9 @@ set(ssfw_src
 
 add_executable(ssfw ${ssfw_src})
 
-target_link_libraries(ssfw nlohmann_json imgui imgui-node-editor stb)
+target_compile_definitions(ssfw PUBLIC "-DSSFW_GUI")
+
+target_link_libraries(ssfw nlohmann_json imgui imgui-node-editor stb nativefiledialog)
 
 target_include_directories(ssfw PUBLIC "src")
 # /SSFW #

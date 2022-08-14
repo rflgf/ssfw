@@ -8,6 +8,7 @@
 #include <map>
 #include <stdio.h>
 #include <string>
+#include <vector>
 
 // vendor headers.
 #include "nlohmann/json.hpp"

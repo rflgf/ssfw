@@ -47,7 +47,63 @@ void Model::save(const char *file_path)
 	file.close();
 }
 
-void Model::validate() {}
+bool Model::validate()
+{
+	for (const Generator &g : generator_components)
+	{
+		if (!g.outlet)
+			validation_errors.push_back(
+			    std::format("Generator {}: outlet can't be empty.", g.name));
+		if (g.upper_throughput < g.lower_throughput)
+			validation_errors.push_back(
+			    std::format("Generator {}: upper throughput is "
+			                "lower than lower throughput.",
+			                g.name));
+
+		SSFW_ASSERT(g.id, "Generator doesn't have an id.");
+		SSFW_ASSERT(g.outlet && g.outlet_id || g.outlet->id != g.outlet_id,
+		            "Outlet and outlet ID mismatch.");
+	}
+
+	for (const Router &r : router_components)
+	{
+		if (!r.outlet)
+			validation_errors.push_back(
+			    std::format("Router {}: outlet 1 can't be empty.", r.name));
+		if (!r.outlet_b)
+			validation_errors.push_back(
+			    std::format("Router {}: outlet 2 can't be empty.", r.name));
+		if (r.factor < 0 || r.factor > 1)
+			validation_errors.push_back(std::format(
+			    "Router {}: factor needs to be be in [0,1].", r.name));
+
+		SSFW_ASSERT(r.id, "Router doesn't have an id.");
+		SSFW_ASSERT(r.outlet && r.outlet_id || r.outlet->id != r.outlet_id,
+		            "Outlet 1 and outlet ID 1 mismatch.");
+		SSFW_ASSERT(r.outlet_b && r.outlet_b_id ||
+		                r.outlet_b->id != r.outlet_b_id,
+		            "Outlet 2 and outlet ID 2 mismatch.");
+	}
+
+	for (const Server &s : server_components)
+	{
+		if (!s.outlet)
+			validation_errors.push_back(
+			    std::format("Server {}: outlet can't be empty.", s.name));
+		if (s.lower_service_time > s.upper_service_time)
+			validation_errors.push_back(
+			    std::format("Server {}: lower service time is "
+			                "higher than higher service time.",
+			                s.name));
+
+		SSFW_ASSERT(s.id, "Server doesn't have an id.");
+		SSFW_ASSERT(s.outlet && s.outlet_id || s.outlet->id != s.outlet_id,
+		            "Outlet and outletID mismatch.");
+	}
+
+	// TODO(Rafael): validate the inlets as well.
+	return validation_errors.size() == 0;
+}
 
 void Model::update_statistics(Event &e) {}
 

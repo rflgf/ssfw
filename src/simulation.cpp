@@ -1,7 +1,8 @@
+#include "simulation.h"
+
 #include <cstdlib>
 
 #include "event.h"
-#include "simulation.h"
 
 namespace ssfw
 {

@@ -29,6 +29,8 @@ public:
 	std::vector<Server> server_components;
 	std::vector<Sink> sink_components;
 
+	std::vector<std::string> validation_errors;
+
 	Model(const std::string name, time_unit sim_time_limit)
 	    : name(name), sim_time_limit(sim_time_limit)
 	{
@@ -39,7 +41,7 @@ public:
 	~Model();
 
 	Model load_from(std::string_view file_path);
-	void validate();
+	bool validate();
 	void save(const char *file_path);
 	void update_statistics(Event &e);
 
@@ -49,6 +51,9 @@ public:
 	};
 
 	friend class Application;
+#ifdef SSFW_GUI
+	friend class Renderer;
+#endif
 
 	using json = nlohmann::json;
 	friend void to_json(json &j, const Model &m);

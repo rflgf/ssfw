@@ -6,6 +6,7 @@
 #include "components/server.h"
 #include "components/sink.h"
 #include "core.h"
+#include "model.h"
 
 #include <SDL.h>
 #undef main
@@ -53,7 +54,7 @@ private:
 		static constexpr uint8_t MAX_NAME_LENGTH = 50;
 
 		std::string name;
-		node_editor::PinId id;
+		node_editor::NodeId id;
 		Type type;
 		Data data;
 		ImVec2 position;
@@ -63,20 +64,44 @@ private:
 
 	struct Link
 	{
-		node_editor::LinkId self;
+		node_editor::LinkId id;
 		node_editor::PinId in;
 		node_editor::PinId out;
 	};
 
-	uint32_t ids = 0; // for nodes, pins and links.
+	struct Pin
+	{
+		Pin(node_editor::PinId id, node_editor::PinKind type, Node &parent)
+		    : id(id), type(type), parent(parent)
+		{
+		}
+		node_editor::PinId id;
+		node_editor::PinKind type;
+		Node &parent;
+	};
+
+	enum View
+	{
+		MODELER,
+		SIMULATOR
+	};
+
+	uint32_t ids = 1; // for nodes, pins and links.
 
 public:
 	int on_init();
 	void on_destroy();
-	void on_gui();
+	bool on_gui();
 	void on_window_resize(int new_width, int new_height);
 
+	void load_model_from_file(std::string_view filepath);
+	void save_model_to_file(std::string_view filepath);
+	static Model renderer_rep_to_model_rep(std::vector<Node> nodes);
+
+	void draw_main_menu();
 	void on_right_click_menu();
+	void draw_centered_modal(std::vector<std::string> &messages,
+	                         bool &modal_open);
 	void offset_cursor_by(int offset);
 
 	void draw_nodes();
@@ -96,12 +121,18 @@ public:
 	SDL_GLContext gl_context;
 	node_editor::EditorContext *node_editor_context = nullptr;
 	Window window_info;
+
 	std::vector<Link> links;
 	std::vector<Node> nodes;
-	bool first_frame = true;
-
+	std::unordered_map<uintptr_t, Pin> pins;
 	uint32_t generator_count = 0, router_count = 0, server_count = 0,
 	         sink_count = 0;
+
+	bool first_frame = true;
+	View current_view = View::MODELER;
+	std::string model_filepath;
+	Model model_view;
+	std::vector<std::string> model_validation_errors;
 };
 
 } // namespace ssfw
